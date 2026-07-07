@@ -49,6 +49,8 @@ are also available directly using the catalogue of posets, as follows::
 from __future__ import annotations
 from sage.categories.finite_lattice_posets import FiniteLatticePosets
 from sage.combinat.posets.lattices import LatticePoset, MeetSemilattice
+from sage.rings.integer_ring import ZZ
+from sage.rings.rational_field import QQ
 
 
 def paths_in_triangle(i, j, a, b) -> list[tuple[int, ...]]:
@@ -167,7 +169,9 @@ def GeneralizedTamariLattice(a, b, m=1):
 
     INPUT:
 
-    - ``a``, ``b`` -- integers with `a \geq b`
+    - ``a`` -- positive integer
+
+    - ``b`` -- nonnegative integer
 
     - ``m`` -- a nonnegative rational number such that `a \geq b m`
 
@@ -206,11 +210,32 @@ def GeneralizedTamariLattice(a, b, m=1):
         sage: P = GeneralizedTamariLattice(5, 3, m=5/3); P
         Finite lattice containing 7 elements
 
+        sage: GeneralizedTamariLattice(3, 2, -1)
+        Traceback (most recent call last):
+        ...
+        ValueError: m must be a nonnegative rational number
+        sage: GeneralizedTamariLattice(0, 0)
+        Traceback (most recent call last):
+        ...
+        ValueError: a must be a positive integer
+        sage: GeneralizedTamariLattice(3, -1)
+        Traceback (most recent call last):
+        ...
+        ValueError: b must be a nonnegative integer
+        sage: GeneralizedTamariLattice(3/2, 1)
+        Traceback (most recent call last):
+        ...
+        ValueError: a must be a positive integer
 
     TESTS::
 
         sage: P.coxeter_transformation()**18 == 1                                       # needs sage.libs.flint
         True
+
+        sage: GeneralizedTamariLattice(3, 2, sqrt(2))                                   # needs sage.symbolic
+        Traceback (most recent call last):
+        ...
+        ValueError: m must be a nonnegative rational number
 
     REFERENCES:
 
@@ -220,6 +245,13 @@ def GeneralizedTamariLattice(a, b, m=1):
 
     - [CC2023]_
     """
+    if a not in ZZ or a <= 0:
+        raise ValueError("a must be a positive integer")
+    if b not in ZZ or b < 0:
+        raise ValueError("b must be a nonnegative integer")
+    if m not in QQ or m < 0:
+        raise ValueError("m must be a nonnegative rational number")
+
     if a < b * m:
         raise ValueError("the condition a>=b*m does not hold")
 
@@ -269,11 +301,28 @@ def TamariLattice(n, m=1):
 
         sage: posets.TamariLattice(3, 2)
         Finite lattice containing 12 elements
+        sage: posets.TamariLattice(-1)
+        Traceback (most recent call last):
+        ...
+        ValueError: n must be a nonnegative integer
+        sage: posets.TamariLattice(3, -1)
+        Traceback (most recent call last):
+        ...
+        ValueError: m must be a nonnegative integer
+        sage: posets.TamariLattice(3, 1/2)
+        Traceback (most recent call last):
+        ...
+        ValueError: m must be a nonnegative integer
 
     REFERENCES:
 
     - [BMFPR2011]_
     """
+    if n not in ZZ or n < 0:
+        raise ValueError("n must be a nonnegative integer")
+    if m not in ZZ or m < 0:
+        raise ValueError("m must be a nonnegative integer")
+
     return GeneralizedTamariLattice(m * n + 1, n, m)
 
 
@@ -378,11 +427,22 @@ def DexterSemilattice(n):
         4
         sage: P.chain_polynomial()
         q^5 + 19*q^4 + 47*q^3 + 42*q^2 + 14*q + 1
+        sage: posets.DexterSemilattice(-1)
+        Traceback (most recent call last):
+        ...
+        ValueError: n must be a nonnegative integer
+        sage: posets.DexterSemilattice(1/2)
+        Traceback (most recent call last):
+        ...
+        ValueError: n must be a nonnegative integer
 
     REFERENCES:
 
     - [Cha18]_
     """
+    if n not in ZZ or n < 0:
+        raise ValueError("n must be a nonnegative integer")
+
     a = n + 1
     b = n
 
